@@ -10,7 +10,8 @@ export default defineConfig([
       'no-undef': 'warn',
       'semi': ['error', 'always'], 
       'indent': ['error', 2],
-      'quotes': ['error', 'single'],          
+      'quotes': ['error', 'single'],  
+      '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }]        
     }
   },
   tseslint.configs.recommended,

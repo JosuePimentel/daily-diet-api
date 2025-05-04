@@ -5,7 +5,10 @@ const envSchema = z.object({
   DATABASE_URL: z.string(),
   DATABASE_CLIENT: z.string(),
   PORT: z.coerce.number().default(3333),
-  NODE_ENV: z.enum(['development', 'production', 'stagging']).default('development')
+  HASH_SALT: z.coerce.number().default(10),
+  NODE_ENV: z.enum(['development', 'production', 'stagging']).default('development'),
+  JWT_SECRET: z.string(),
+  JWT_EXPIRATION_TIME: z.coerce.number().default(3600)
 });
 
 const _env = envSchema.safeParse(process.env);
