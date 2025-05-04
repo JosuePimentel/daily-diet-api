@@ -41,4 +41,26 @@ O tsx é usado para facilitar a vida quando for executar o typescript com node, 
 
 Lista de comandos:
 
-* `gh auth login`
+* Autenticação - `gh auth`
+  - `gh auth login` - Fazer login com a conta do GitHub.
+  - `gh auth logout` - Fazer logout.
+  - `gh auth status` - Verificar status do auth.
+
+* Repositório - `gh repo`
+  - `gh repo clone <owner>/<repo>` - Clona um repositório, exemplo `gh repo clone JosuePimentel/daily-diet-api`
+  - `gh repo create nome-do-repositorio` - Cria um repositorio, parametros extras:
+    - --public ou --private - define a visibilidade.
+    - --source=. - usa o diretório atual como origem.
+    - --remote=origin - define o nome do remoto.
+    - `gh repo view <owner>/<repo>` - Visualiza um repositório, se não passar o `<owner>/<repo>`, é usado o repositório atual. Parametros extras:
+      - --web - abre o repositorio no browser.
+
+## Conceitos 
+
+### Fastify
+
+O [fastify](https://fastify.dev/) é um micro framework do node (assim como o express), ele facilita no código para não ter que criar um backend do zero com o node.
+
+### Knex
+
+O [Knex](https://knexjs.org/) é um Query Builder, ou seja, ele facilita nas criações de comandos SQL para qualquer operação no banco de dados. 
