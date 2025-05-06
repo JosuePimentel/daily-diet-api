@@ -13,11 +13,9 @@ export async function CheckMatchingId(req: FastifyRequest<{ Params: { id?: strin
     if (!mealFound) {
       res.status(404).send({ error: 'id da refeicao nao encontrada' });
     }
-      
-    const { token } = req.cookies;
-    const tokenDecoded = req.server.jwt.decode<{ sub: string }>(token!);
-        
-    if (tokenDecoded!.sub != mealFound?.user_id) {
+    
+    const { authId } = req;
+    if (authId != mealFound?.user_id) {
       res.status(403).send({ error: 'usuario tentando alterar informacoes que nao sao dele.' });
     }
   } 

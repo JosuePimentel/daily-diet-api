@@ -8,12 +8,11 @@ import { z } from 'zod';
 export async function MealRoute(app: FastifyInstance) {
   app.addHook('preHandler', Auth);
 
-  
-  app.post('/', async (req, res) => {
+  app.post('/', async (req) => {
     const mealSchema = z.object({
       user_id: z.string().uuid(),
       name: z.string(),
-      desc: z.string().nullable(),
+      desc: z.string().optional(),
       inDiet: z.number(),
       date_meal: z.string()
     });
@@ -24,7 +23,7 @@ export async function MealRoute(app: FastifyInstance) {
       .insert({
         id: randomUUID(),
         name,
-        desc,
+        desc: desc,
         inDiet, 
         user_id,
         date_meal
@@ -32,26 +31,76 @@ export async function MealRoute(app: FastifyInstance) {
   });
 
   app.get('/:id', { preHandler: CheckMatchingId }, async (req, res) => {
-    const { token } = req.cookies;
-    const tokenDecode = req.server.jwt.decode(token!);
+    const { authId } = req;
     const { id } = req.params;
 
     const response = await database('meals')
       .select()
-      .where('user_id', tokenDecode!.sub)
+      .where('user_id', authId)
       .andWhere('id', id);
 
     res.status(200).send(response);
   });
   
   app.get('/', { preHandler: CheckMatchingId }, async (req, res) => {
-    const { token } = req.cookies;
-    const tokenDecode = req.server.jwt.decode(token!);
+    const { authId } = req;
 
     const response = await database('meals')
       .select()
-      .where('user_id', tokenDecode!.sub);
+      .where('user_id', authId);
 
     res.status(200).send(response);
+  });
+
+  app.delete('/:id', { preHandler: CheckMatchingId }, async (req, res) => {
+    const { authId } = req;
+    const { id } = req.params;
+    const mealFound = await database('meals')
+      .where('id', id)
+      .andWhere('user_id', authId)
+      .first();
+
+    if(!mealFound) {
+      res.status(404).send({ error: 'refeição não encontrada' });
+    }
+
+    await database('meals')
+      .where('id', id)
+      .first()
+      .del();
+
+    res.send(204);
+  });
+
+  app.patch('/:id', { preHandler: CheckMatchingId }, async (req, res) => {
+    const { id } = req.params;
+    const { authId } = req;
+
+    const mealSchema = z.object({
+      name: z.string().nullable(),
+      desc: z.string().nullable(),
+      inDiet: z.number().nullable(),
+      date_meal: z.string().nullable()
+    });
+
+    const { name, desc, inDiet, date_meal } = mealSchema.parse(req.body);
+
+    const mealFound = await database('meals')
+      .select()
+      .where('id', id)
+      .andWhere('user_id', authId);
+
+    if(!mealFound) {
+      res.status(404).send({ error: 'refeição não encontrada' });
+    }
+
+    await database('meals')
+      .where('id', id)
+      .update({
+        name,
+        desc,
+        inDiet,
+        date_meal
+      });
   });
 }

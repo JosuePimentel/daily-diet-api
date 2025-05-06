@@ -36,4 +36,8 @@ export async function AuthRoute(app: FastifyInstance) {
     res.send(200);
   });
 
+  app.get('/logout', (req, res) => {
+    res.clearCookie('token', { path: '/' }).send(200);
+  });
+
 }

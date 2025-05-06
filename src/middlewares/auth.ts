@@ -10,6 +10,8 @@ export async function Auth (req: FastifyRequest, res: FastifyReply) {
 
     req.server.jwt.verify(token!);
 
+    const tokenDecoded = req.server.jwt.decode<{ sub: string }>(token!);
+    req.authId = tokenDecoded!.sub;
   } catch {
     res.status(401).send({ error: 'token inválido ou expirado.' });
   }
