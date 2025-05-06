@@ -31,15 +31,15 @@ export async function MealRoute(app: FastifyInstance) {
       });
   });
 
-  app.get('/:id', { preHandler: CheckMatchingId } async (req, res) => {
+  app.get('/:id', { preHandler: CheckMatchingId }, async (req, res) => {
     const { token } = req.cookies;
     const tokenDecode = req.server.jwt.decode(token!);
     const { id } = req.params;
 
     const response = await database('meals')
-    .select()
-    .where('user_id', tokenDecode!.sub)
-    .andWhere('id', id);
+      .select()
+      .where('user_id', tokenDecode!.sub)
+      .andWhere('id', id);
 
     res.status(200).send(response);
   });

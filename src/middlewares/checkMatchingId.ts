@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { database } from '../database';
 
-export async function CheckMatchingId(req: FastifyRequest, res: FastifyReply) {
+export async function CheckMatchingId(req: FastifyRequest<{ Params: { id?: string } }>, res: FastifyReply) {
   const { id } = req.params;
   
   if (id) {
@@ -15,7 +15,7 @@ export async function CheckMatchingId(req: FastifyRequest, res: FastifyReply) {
     }
       
     const { token } = req.cookies;
-    const tokenDecoded = req.server.jwt.decode(token!);
+    const tokenDecoded = req.server.jwt.decode<{ sub: string }>(token!);
         
     if (tokenDecoded!.sub != mealFound?.user_id) {
       res.status(403).send({ error: 'usuario tentando alterar informacoes que nao sao dele.' });
