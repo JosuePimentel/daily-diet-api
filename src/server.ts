@@ -1,8 +1,9 @@
 import { app } from './app';
-import 'dotenv/config';
+import { env } from './env';
 
 app.listen({
-  port: Number(process.env.PORT)
+  port: env!.PORT,
+  host: 'RENDER' in process.env ? '0.0.0.0' : 'localhost'
 }).then(() => {
   console.log(`HTTP Server Runnin in port: ${process.env.PORT}`);
 });

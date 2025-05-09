@@ -1,6 +1,6 @@
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import { defineConfig } from 'eslint/config';
+import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([ 
   {
@@ -11,8 +11,8 @@ export default defineConfig([
       'semi': ['error', 'always'], 
       'indent': ['error', 2],
       'quotes': ['error', 'single'],  
-      '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }]        
     }
   },
   tseslint.configs.recommended,
+  globalIgnores(['dist', 'node_modules'])
 ]);
