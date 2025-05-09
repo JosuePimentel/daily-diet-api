@@ -4,20 +4,23 @@ import { CheckMatchingId } from '../middlewares/checkMatchingId';
 import { database } from '../database';
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 export async function MealRoute(app: FastifyInstance) {
   app.addHook('preHandler', Auth);
 
-  app.post('/', async (req) => {
-    const mealSchema = z.object({
-      user_id: z.string().uuid(),
-      name: z.string(),
-      desc: z.string().optional(),
-      inDiet: z.number(),
-      date_meal: z.string()
-    });
-
-    const { user_id, name, desc, inDiet, date_meal } = mealSchema.parse(req.body);
+  app.withTypeProvider<ZodTypeProvider>().post('/', {
+    schema: {
+      body: z.object({
+        name: z.string(),
+        desc: z.string().optional(),
+        inDiet: z.number(),
+        date_meal: z.string()
+      })
+    },
+  }, async (req, res) => {
+    const { authId } = req;
+    const { name, desc, inDiet, date_meal } = req.body;
 
     await database('meals')
       .insert({
@@ -25,19 +28,29 @@ export async function MealRoute(app: FastifyInstance) {
         name,
         desc: desc,
         inDiet, 
-        user_id,
+        user_id: authId,
         date_meal
       });
+    
+    res.send(201);
   });
 
-  app.get('/:id', { preHandler: CheckMatchingId }, async (req, res) => {
+  app.withTypeProvider<ZodTypeProvider>().get('/:id', {
+    preHandler: CheckMatchingId,
+    schema: {
+      params: z.object({
+        id: z.string().uuid()
+      })
+    }
+  }, async (req, res) => {
     const { authId } = req;
     const { id } = req.params;
 
     const response = await database('meals')
       .select()
       .where('user_id', authId)
-      .andWhere('id', id);
+      .andWhere('id', id)
+      .first();
 
     res.status(200).send(response);
   });
@@ -48,13 +61,21 @@ export async function MealRoute(app: FastifyInstance) {
     const response = await database('meals')
       .select()
       .where('user_id', authId);
-
+    
     res.status(200).send(response);
   });
 
-  app.delete('/:id', { preHandler: CheckMatchingId }, async (req, res) => {
+  app.withTypeProvider<ZodTypeProvider>().delete('/:id', {
+    preHandler: CheckMatchingId,
+    schema: {
+      params: z.object({
+        id: z.string().uuid()
+      })
+    }
+  }, async (req, res) => {
     const { authId } = req;
     const { id } = req.params;
+
     const mealFound = await database('meals')
       .where('id', id)
       .andWhere('user_id', authId)
@@ -72,23 +93,30 @@ export async function MealRoute(app: FastifyInstance) {
     res.send(204);
   });
 
-  app.patch('/:id', { preHandler: CheckMatchingId }, async (req, res) => {
+  app.withTypeProvider<ZodTypeProvider>().patch('/:id', {
+    preHandler: CheckMatchingId,
+    schema: {
+      params: z.object({
+        id: z.string().uuid()
+      }),
+      body: z.object({
+        name: z.string().optional(),
+        desc: z.string().optional(),
+        inDiet: z.number().optional(),
+        date_meal: z.string().optional()
+      })
+    }
+  }, async (req, res) => {
     const { id } = req.params;
     const { authId } = req;
 
-    const mealSchema = z.object({
-      name: z.string().nullable(),
-      desc: z.string().nullable(),
-      inDiet: z.number().nullable(),
-      date_meal: z.string().nullable()
-    });
-
-    const { name, desc, inDiet, date_meal } = mealSchema.parse(req.body);
+    const { name, desc, inDiet, date_meal } = req.body;
 
     const mealFound = await database('meals')
       .select()
       .where('id', id)
-      .andWhere('user_id', authId);
+      .andWhere('user_id', authId)
+      .first();
 
     if(!mealFound) {
       res.status(404).send({ error: 'refeição não encontrada' });
@@ -102,5 +130,7 @@ export async function MealRoute(app: FastifyInstance) {
         inDiet,
         date_meal
       });
+
+    res.send(204);
   });
 }

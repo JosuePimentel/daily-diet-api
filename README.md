@@ -11,7 +11,7 @@
     - Data e Hora
     - Está dentro ou não da dieta
 
-[ ] Deve ser possível editar uma refeição, podendo alterar todos os dados acima
+[X] Deve ser possível editar uma refeição, podendo alterar todos os dados acima
 
 [X] Deve ser possível apagar uma refeição
 
@@ -26,4 +26,4 @@
     - Quantidade total de refeições fora da dieta
     - Melhor sequência de refeições dentro da dieta
 
-[ ] O usuário só pode visualizar, editar e apagar as refeições o qual ele criou
+[X] O usuário só pode visualizar, editar e apagar as refeições o qual ele criou

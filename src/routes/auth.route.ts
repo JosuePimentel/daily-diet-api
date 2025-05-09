@@ -3,15 +3,18 @@ import { database } from '../database';
 import { z } from 'zod';
 import { compareSync } from 'bcrypt';
 import { env } from '../env';
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 export async function AuthRoute(app: FastifyInstance) {
-  app.post('/login', async (req, res) => {
-    const loginSchema = z.object({
-      email: z.string().email(),
-      password: z.string()
-    });
-
-    const { email, password } = loginSchema.parse(req.body);
+  app.withTypeProvider<ZodTypeProvider>().post('/login', {
+    schema: {
+      body: z.object({
+        email: z.string().email(),
+        password: z.string()
+      })
+    }
+  }, async (req, res) => {
+    const { email, password } = req.body;
 
     const userFound = await database('users')
       .select('id', 'email', 'password')
@@ -36,7 +39,7 @@ export async function AuthRoute(app: FastifyInstance) {
     res.send(200);
   });
 
-  app.get('/logout', (req, res) => {
+  app.get('/logout', (_req, res) => {
     res.clearCookie('token', { path: '/' }).send(200);
   });
 

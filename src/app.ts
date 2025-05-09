@@ -5,8 +5,12 @@ import { MealRoute } from './routes/meal.route';
 import { AuthRoute } from './routes/auth.route';
 import fastifyJwt from '@fastify/jwt';
 import { env } from './env';
+import { serializerCompiler, validatorCompiler, ZodTypeProvider } from 'fastify-type-provider-zod';
 
-export const app = fastify();
+export const app = fastify().withTypeProvider<ZodTypeProvider>();
+
+app.setValidatorCompiler(validatorCompiler);
+app.setSerializerCompiler(serializerCompiler);
 
 app.register(cookie);
 

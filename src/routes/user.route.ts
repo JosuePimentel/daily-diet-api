@@ -4,16 +4,19 @@ import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
 import bcrypt from 'bcrypt';
 import { env } from '../env';
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 export async function UserRoute(app: FastifyInstance) {
-  app.post('/', async (req, res) => {
-    const bodySchema = z.object({
-      name: z.string(),
-      email: z.string().email(),
-      password: z.string(),
-    });
-
-    const { name, email, password } = bodySchema.parse(req.body);
+  app.withTypeProvider<ZodTypeProvider>().post('/', {
+    schema: {
+      body: z.object({
+        name: z.string(),
+        email: z.string().email(),
+        password: z.string(),
+      })
+    }
+  }, async (req, res) => {
+    const { name, email, password } = req.body;
 
     const passwordCrypt = await bcrypt.hash(password, env!.HASH_SALT);
 
